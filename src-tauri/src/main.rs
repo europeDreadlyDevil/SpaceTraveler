@@ -4,13 +4,13 @@
 use crate::app::App;
 use crate::config_manager::AppState;
 
-mod blazzy_runner;
 mod meilisearch_runner;
 mod app;
 mod tasker;
 mod config_manager;
 mod ws_connector;
 mod blazzy_client;
+mod meilisearch_client;
 
 #[tokio::main]
 async fn main() {

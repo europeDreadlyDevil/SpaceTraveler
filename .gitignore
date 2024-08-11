@@ -1,4 +1,8 @@
 node_modules
+.gitattributes
+.gitignore
+src-tauri/.gitignore
+.idea
 
 /.cache
 /build
@@ -7,3 +11,5 @@ node_modules
 #rust
 src-tauri/target
 src-tauri/src/starship_plugin_api/target
+
+TODO.md

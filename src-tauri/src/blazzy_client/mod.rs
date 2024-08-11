@@ -3,10 +3,47 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Arc;
 use atomic_refcell::AtomicRefCell;
+use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::{Sender, Receiver};
 use tracing::{error, info};
 use websocket::OwnedMessage;
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BlazzyData {
+    file_path: String,
+    file_name: String,
+    metadata: Option<Metadata>
+}
+
+impl BlazzyData {
+    pub fn new(
+        file_path: String,
+        file_name: String,
+        metadata: Option<Metadata>
+    ) -> BlazzyData {
+        Self {
+            file_path,
+            file_name,
+            metadata
+        }
+    }
+    pub fn get_path(&self) -> PathBuf {
+        PathBuf::from(self.file_path.clone())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Metadata {
+    file_type: String,
+    is_dir: bool,
+    is_file: bool,
+    is_symlink: bool,
+    size: u64,
+    permissions: String,
+    modified: String,
+    accessed: String,
+    created: String
+}
 pub struct BlazzyClient {
     sender: Option<Sender<OwnedMessage>>,
     recv: Option<Arc<AtomicRefCell<Receiver<OwnedMessage>>>>,
@@ -41,6 +78,10 @@ impl BlazzyClient {
 
     }
 
+    pub fn get_exe_path(&self) -> &PathBuf {
+        &self.exe_path
+    }
+
     pub fn connect_channel(&mut self, channel: (Sender<OwnedMessage>, Receiver<OwnedMessage>)) {
         self.sender = Some(channel.0);
         self.recv = Some(Arc::new(AtomicRefCell::new(channel.1)));
@@ -54,10 +95,12 @@ impl BlazzyClient {
         }
     }
 
-    pub async fn listen(&mut self) {
-        if let Some(mut rx) = self.recv.clone() {
+    pub fn listen(&mut self) {
+        if let Some(rx) = self.recv.clone() {
             tokio::task::spawn(async move {
-                if let Some(message) = rx.borrow_mut().recv().await {
+                //let mut message_stack = vec![];
+
+                while let Some(message) = rx.borrow_mut().recv().await {
                     match message {
                         OwnedMessage::Text(data) => {
                             info!("{data}")

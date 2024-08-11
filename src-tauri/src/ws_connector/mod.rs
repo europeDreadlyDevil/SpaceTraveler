@@ -28,7 +28,7 @@ impl WsConnector {
             .unwrap();
 
         let (mut rec, mut send) = client.split().unwrap();
-        let (tx, mut rx) = channel(32);
+        let (tx, mut rx) = channel(1024);
         let tx_1 = tx.clone();
         let client_sender = client_sender.clone();
 
@@ -65,7 +65,6 @@ impl WsConnector {
                                 error!("{e}")
                             }
                         }
-                        info!("{}", data);
                     }
                     OwnedMessage::Close(_) => {
                         let _ = tx_1.send(OwnedMessage::Close(None)).await;

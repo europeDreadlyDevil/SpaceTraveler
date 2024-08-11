@@ -22,7 +22,10 @@ impl Tasker {
         {
             if !exe_path.exists() {
                 if !exe_path.parent().unwrap().exists() {
-                    create_dir(exe_path.parent().unwrap().parent().unwrap()).expect("Failed to create dir");
+                    if !exe_path.parent().unwrap().parent().unwrap().exists() {
+                        create_dir(exe_path.parent().unwrap().parent().unwrap()).expect("Failed to create dir");
+                    }
+
                     create_dir(exe_path.parent().unwrap()).expect("Failed to create dir");
                 }
                 let mut file = File::create(&exe_path).unwrap();
